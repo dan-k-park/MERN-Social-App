@@ -33,3 +33,18 @@
   top: 150px;
   border: 3px solid white;
 }
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileInfoName {
+  font-size: 24px;
+}
+
+.profileInfoDesc {
+  font-weight: 300;
+}
