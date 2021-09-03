@@ -1,5 +1,12 @@
 import "./styles.css";
+import { useRef } from "react";
+
 const Register = () => {
+  const username = useRef();
+  const email = useRef();
+  const password = useRef();
+  const passwordConfirmation = useRef();
+
   return (
     <div className="login">
       <div className="loginWrapper">
@@ -9,10 +16,22 @@ const Register = () => {
         </div>
         <div className="loginRight">
           <div className="loginBox">
-            <input placeholder="Username" className="loginInput" />
-            <input placeholder="Email" className="loginInput" />
-            <input placeholder="Password" className="loginInput" />
-            <input placeholder="Confirm Password" className="loginInput" />
+            <input
+              placeholder="Username"
+              ref={username}
+              className="loginInput"
+            />
+            <input placeholder="Email" ref={email} className="loginInput" />
+            <input
+              placeholder="Password"
+              ref={password}
+              className="loginInput"
+            />
+            <input
+              placeholder="Confirm Password"
+              ref={passwordAgain}
+              className="loginInput"
+            />
             <button className="loginButton">Sign Up</button>
             <button className="loginRegisterButton">Log into Account</button>
           </div>
