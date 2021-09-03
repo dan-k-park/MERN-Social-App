@@ -1,11 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Topbar from "../../components/Topbar";
 import Sidebar from "../../components/Sidebar";
 import Rightbar from "../../components/Rightbar";
 import Feed from "../../components/Feed";
 import "./styles.css";
+import axios from "axios";
+import { useParams } from "react-router";
 
 const Profile = () => {
+  const publicFolder = process.env.REACT_APP_PUBLIC_FOLDER;
+
+  const [user, setUser] = useState({});
+  // In the parent router, used usename as a param
+  const username = useParams().username;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await axios.get(`/users?username=${username}`);
+      setUser(res.data);
+    };
+    fetchUser();
+  }, []);
+
   return (
     <>
       <Topbar />
@@ -16,23 +32,25 @@ const Profile = () => {
             <div className="profileCover">
               <img
                 className="profileCoverImg"
-                src="assets/post/3.jpeg"
+                src={user.coverPicture || publicFolder + "/person/noCover.png"}
                 alt=""
               />
               <img
                 className="profileUserImg"
-                src="assets/person/7.jpeg"
+                src={
+                  user.profilePicture || publicFolder + "/person/noAvatar.png"
+                }
                 alt=""
               />
             </div>
             <div className="profileInfo">
-              <h4 className="profileInfoName">My Name</h4>
-              <h4 className="profileInfoDesc">My profile description</h4>
+              <h4 className="profileInfoName">{user.username}</h4>
+              <h4 className="profileInfoDesc">{user.desc}</h4>
             </div>
           </div>
           <div className="profileRightBottom">
-            <Feed />
-            <Rightbar profile />
+            <Feed username={username} />
+            <Rightbar user={user} />
           </div>
         </div>
       </div>

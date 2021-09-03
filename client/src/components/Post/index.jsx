@@ -1,11 +1,24 @@
 import { MoreVert } from "@material-ui/icons";
-import { Users } from "../../dummyData";
 import "./styles.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import { format } from "timeago.js";
+import { Link } from "react-router-dom";
 
 const Post = ({ post }) => {
-  const [like, setlike] = useState(post.like);
+  const publicFolder = process.env.REACT_APP_PUBLIC_FOLDER;
+
+  const [like, setlike] = useState(post.likes.length);
   const [isLiked, setIsLiked] = useState(false);
+  const [user, setUser] = useState({});
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const res = await axios.get(`/users?userId=${post.userId}`);
+      setUser(res.data);
+    };
+    fetchUser();
+  }, [post.userId]);
 
   const likeHandler = () => {
     setlike(isLiked ? like - 1 : like + 1);
@@ -16,18 +29,17 @@ const Post = ({ post }) => {
       <div className="postWrapper">
         <div className="postTop">
           <div className="postTopLeft">
-            <img
-              className="postProfileImg"
-              src={
-                Users.filter((user) => user.id === post.userId)[0]
-                  .profilePicture
-              }
-              alt=""
-            />
-            <span className="postUsername">
-              {Users.filter((user) => user.id === post.userId)[0].username}
-            </span>
-            <span className="postDate">{post.date}</span>
+            <Link to={`/profile/${user.username}`}>
+              <img
+                className="postProfileImg"
+                src={
+                  user.profilePicture || publicFolder + "/person/noAvatar.png"
+                }
+                alt=""
+              />
+            </Link>
+            <span className="postUsername">{user.username}</span>
+            <span className="postDate">{format(post.createdAt)}</span>
           </div>
           <div className="postTopRight">
             <MoreVert />
@@ -35,19 +47,19 @@ const Post = ({ post }) => {
         </div>
         <div className="postCenter">
           <span className="postText">{post?.desc}</span>
-          <img className="postImg" src={post.photo} alt="" />
+          <img className="postImg" src={publicFolder + post.img} alt="" />
         </div>
         <div className="postBottom">
           <div className="postBottomLeft">
             <img
               className="likeIcon"
-              src="assets/like.png"
+              src={`${publicFolder}/like.png`}
               alt=""
               onClick={likeHandler}
             />
             <img
               className="likeIcon"
-              src="assets/heart.png"
+              src={`${publicFolder}/heart.png`}
               alt=""
               onClick={likeHandler}
             />

@@ -48,7 +48,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       max: 50,
     },
-    fomr: {
+    from: {
       type: String,
       max: 50,
     },
