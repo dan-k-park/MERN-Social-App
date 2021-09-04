@@ -1,11 +1,33 @@
 import "./styles.css";
 import { useRef } from "react";
+import axios from "axios";
+import { useHistory } from "react-router";
 
 const Register = () => {
   const username = useRef();
   const email = useRef();
   const password = useRef();
   const passwordConfirmation = useRef();
+  const history = useHistory();
+
+  const handleClick = async (e) => {
+    e.preventDefault();
+    if (passwordConfirmation.current.value !== password.current.value) {
+      passwordConfirmation.current.setCustomValidity("Passwords don't match");
+    } else {
+      const user = {
+        username: username.current.value,
+        email: email.current.value,
+        password: password.current.value,
+      };
+      try {
+        await axios.post("/auth/register", user);
+        history.push("/login");
+      } catch (err) {
+        console.error(err);
+      }
+    }
+  };
 
   return (
     <div className="login">
@@ -15,26 +37,37 @@ const Register = () => {
           <span className="loginDesc">Find new events around you</span>
         </div>
         <div className="loginRight">
-          <div className="loginBox">
+          <form className="loginBox" onSubmit={handleClick}>
             <input
               placeholder="Username"
               ref={username}
               className="loginInput"
             />
-            <input placeholder="Email" ref={email} className="loginInput" />
+            <input
+              placeholder="Email"
+              type="email"
+              ref={email}
+              className="loginInput"
+            />
             <input
               placeholder="Password"
               ref={password}
               className="loginInput"
+              type="password"
+              minLength="6"
             />
             <input
               placeholder="Confirm Password"
-              ref={passwordAgain}
+              ref={passwordConfirmation}
               className="loginInput"
+              type="password"
+              minLength="6"
             />
-            <button className="loginButton">Sign Up</button>
+            <button className="loginButton" type="submit">
+              Sign Up
+            </button>
             <button className="loginRegisterButton">Log into Account</button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
