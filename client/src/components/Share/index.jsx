@@ -18,9 +18,9 @@ const Share = () => {
 
     if (file) {
       const data = new FormData();
-      const fileName = Date.now() + file.name;
-      data.append("file", file);
+      const fileName = file.name;
       data.append("name", fileName);
+      data.append("file", file);
       newPost.img = fileName;
       try {
         await axios.post("/upload", data);
