@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import ChatOnline from "../../ChatOnline";
+import ChatOnline from "../../components/ChatOnline";
 import Conversation from "../../components/Conversation";
 import Message from "../../components/Message";
 import Topbar from "../../components/Topbar";
@@ -13,18 +13,40 @@ const Messenger = () => {
   const [currentChat, setCurrentChat] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
+  const [arrivalMessage, setArrivalMessage] = useState(null);
+  const [onlineUsers, setOnlineUsers] = useState([]);
   const socket = useRef();
   const { user } = useContext(AuthContext);
   const scrollRef = useRef();
 
   useEffect(() => {
     socket.current = io("ws://localhost:8900");
+    socket.current.on("getMessage", (data) => {
+      setArrivalMessage({
+        sender: data.senderId,
+        text: data.text,
+        createdAt: Date.now(),
+      });
+    });
   }, []);
+
+  useEffect(() => {
+    arrivalMessage &&
+      currentChat?.members.includes(arrivalMessage.sender) &&
+      setMessages((prev) => [...prev, arrivalMessage]);
+  }, [arrivalMessage, currentChat]);
 
   useEffect(() => {
     socket.current.emit("sendUserId", user._id);
     socket.current.on("getUsers", (users) => {
-      console.log(users);
+      setOnlineUsers(
+        // Take all the users that the current user is following
+        // For each user id, look at the users array from socket io
+        // If the userid in the socket io users array matches the following user id then that user gets put in onlineUsers
+        user.following.filter((followingUser) =>
+          users.some((u) => u.userId === followingUser)
+        )
+      );
     });
   }, [user]);
 
@@ -59,6 +81,16 @@ const Messenger = () => {
       text: newMessage,
       conversationId: currentChat._id,
     };
+
+    const receiverId = currentChat.members.find(
+      (member) => member !== user._id
+    );
+
+    socket.current.emit("sendMessage", {
+      senderId: user._id,
+      receiverId,
+      text: newMessage,
+    });
 
     try {
       const res = await axios.post("/api/messages", message);
@@ -131,9 +163,11 @@ const Messenger = () => {
         </div>
         <div className="chatOnline">
           <div className="chatOnlineWrapper">
-            <ChatOnline />
-            <ChatOnline />
-            <ChatOnline />
+            <ChatOnline
+              onlineUsers={onlineUsers}
+              currentId={user._id}
+              setCurrentChat={setCurrentChat}
+            />
           </div>
         </div>
       </div>
